@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapRoom AI — Virtual Staging in Seconds</title>
+  <meta name="description" content="Turn empty or cluttered smartphone photos into magazine-grade staged interiors in seconds. The #1 AI virtual staging app for realtors and hosts.">
+  <link rel="icon" type="image/png" href="demo_assets/logo.png">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-subtle: #f8faf8;
+      --card-bg: #ffffff;
+      --card-border: #e6ede8;
+      --green: #2FA36B;
+      --green-dark: #1E7A4C;
+      --green-light: #4FCF8C;
+      --green-tint: #ecf8f1;
+      --text: #14211b;
+      --text-muted: #5e7368;
+      --shadow-sm: 0 2px 10px rgba(20, 33, 27, 0.04);
+      --shadow-md: 0 10px 30px rgba(20, 33, 27, 0.08);
+      --shadow-lg: 0 24px 60px rgba(20, 33, 27, 0.12);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .nav-inner {
+      display: flex; justify-content: space-between; align-items: center;
+      height: 74px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 21px; font-weight: 850; text-decoration: none; color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .brand img { width: 38px; height: 38px; border-radius: 10px; box-shadow: var(--shadow-sm); }
+    .brand span { color: var(--green); }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none; font-size: 15px; font-weight: 600;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--green-dark); }
+    .btn-download-nav {
+      background: #000000; color: #ffffff;
+      padding: 10px 22px; border-radius: 999px;
+      font-size: 14.5px; font-weight: 600; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
+      transition: all 0.2s;
+    }
+    .btn-download-nav:hover { transform: translateY(-1px); background: #222; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .apple-icon-nav { height: 18px; width: auto; display: block; }
+
+    /* HERO */
+    .hero {
+      padding: 64px 0 60px;
+      text-align: center;
+      position: relative;
+      background: radial-gradient(75% 55% at 50% 0%, #edf8f2 0%, #ffffff 100%);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--green-tint); border: 1px solid #c8ecd7;
+      color: var(--green-dark); padding: 7px 18px; border-radius: 999px;
+      font-size: 13.5px; font-weight: 700; margin-bottom: 22px;
+    }
+    .hero h1 {
+      font-size: clamp(38px, 5.2vw, 62px);
+      font-weight: 850; line-height: 1.12; letter-spacing: -0.03em;
+      margin-bottom: 18px; max-width: 860px; margin-inline: auto;
+      color: var(--text);
+    }
+    .hero h1 span { color: var(--green); }
+    .hero p {
+      font-size: 19px; color: var(--text-muted); max-width: 650px; margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+    .hero-cta {
+      display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .btn-primary-app {
+      background: var(--green); color: #fff;
+      padding: 16px 36px; border-radius: 999px;
+      font-size: 16.5px; font-weight: 700; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 11px;
+      box-shadow: 0 8px 26px rgba(47, 163, 107, 0.35);
+      transition: all 0.2s;
+    }
+    .btn-primary-app:hover { transform: translateY(-2px); background: var(--green-dark); box-shadow: 0 12px 32px rgba(47, 163, 107, 0.45); }
+    .apple-icon-btn { height: 21px; width: auto; display: block; filter: brightness(0) invert(1); }
+    .hero-subtext { font-size: 13.5px; color: var(--text-muted); }
+
+    /* ROOM SELECTOR / TRY TABS */
+    .room-tabs {
+      display: flex; justify-content: center; align-items: center; gap: 10px;
+      flex-wrap: wrap; margin-top: 40px; margin-bottom: 16px;
+    }
+    .room-tab {
+      background: #ffffff; border: 1.5px solid var(--card-border);
+      color: var(--text-muted); font-size: 14px; font-weight: 650;
+      padding: 9px 18px; border-radius: 999px; cursor: pointer;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+    .room-tab:hover { border-color: #b7e3ca; color: var(--green-dark); }
+    .room-tab.active {
+      background: var(--green-tint); border-color: var(--green);
+      color: var(--green-dark); font-weight: 800;
+      box-shadow: 0 4px 14px rgba(47, 163, 107, 0.2);
+    }
+
+    /* SLIDER COMPONENT */
+    .slider-wrap {
+      position: relative; max-width: 960px; margin-inline: auto;
+    }
+    .slider-card {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      border-radius: 24px; padding: 12px;
+      box-shadow: var(--shadow-lg);
+    }
+    .ba-slider {
+      position: relative; border-radius: 16px; overflow: hidden;
+      aspect-ratio: 16 / 10;
+      user-select: none; touch-action: none; cursor: ew-resize;
+      background: #f0f0f0;
+    }
+    .ba-slider img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      pointer-events: none; transition: opacity 0.2s ease-in-out;
+    }
+    .ba-slider .after-img {
+      clip-path: inset(0 0 0 var(--pos, 50%));
+    }
+    .ba-slider .divider {
+      position: absolute; top: 0; bottom: 0; left: var(--pos, 50%);
+      width: 4px; background: #ffffff;
+      box-shadow: 0 0 16px rgba(0,0,0,0.5);
+      transform: translateX(-50%); pointer-events: none;
+    }
+    .ba-slider .handle {
+      position: absolute; top: 50%; left: var(--pos, 50%);
+      transform: translate(-50%, -50%);
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #ffffff; color: var(--text);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--green);
+      pointer-events: none;
+    }
+    .ba-slider .handle svg { width: 22px; height: 22px; fill: var(--green); }
+    .tag {
+      position: absolute; top: 16px;
+      font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 7px 15px; border-radius: 999px; color: #fff;
+      backdrop-filter: blur(10px); pointer-events: none;
+    }
+    .tag-before { left: 16px; background: rgba(20, 33, 27, 0.75); }
+    .tag-after { right: 16px; background: var(--green); }
+    .slider-hint {
+      text-align: center; font-size: 14.5px; color: var(--text-muted); margin-top: 18px;
+    }
+    .slider-hint span { color: var(--green-dark); font-weight: 700; }
+
+    /* HOW IT WORKS */
+    .section { padding: 90px 0; }
+    .section-head { text-align: center; max-width: 640px; margin: 0 auto 50px; }
+    .section-head h2 { font-size: 34px; font-weight: 850; letter-spacing: -0.02em; margin-bottom: 14px; }
+    .section-head p { font-size: 17px; color: var(--text-muted); }
+
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    @media(max-width: 800px) { .steps-grid { grid-template-columns: 1fr; } }
+    .step-card {
+      background: #ffffff; border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 36px 28px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+    .step-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: #cce9d6; }
+    .step-num {
+      width: 46px; height: 46px; border-radius: 12px;
+      background: var(--green-tint); color: var(--green-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; font-weight: 800; margin-bottom: 22px;
+    }
+    .step-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+    .step-card p { font-size: 15px; color: var(--text-muted); line-height: 1.6; }
+
+    /* MODES SHOWCASE */
+    .modes-split {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center;
+    }
+    @media(max-width: 860px) { .modes-split { grid-template-columns: 1fr; } }
+    .mode-item {
+      display: flex; gap: 18px; margin-bottom: 26px;
+    }
+    .mode-icon {
+      flex: 0 0 38px; height: 38px; border-radius: 10px;
+      background: var(--green); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 17px;
+    }
+    .mode-item h4 { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+    .mode-item p { font-size: 14.5px; color: var(--text-muted); line-height: 1.5; }
+
+    /* PRICING */
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: center;
+      max-width: 1020px; margin: 0 auto;
+    }
+    @media(max-width: 880px) { .pricing-grid { grid-template-columns: 1fr; } }
+    .price-card {
+      background: #ffffff; border: 1.5px solid var(--card-border);
+      border-radius: 22px; padding: 36px 28px;
+      position: relative; box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+    .price-card:hover { box-shadow: var(--shadow-md); }
+    .price-card.popular {
+      background: #ffffff;
+      border-color: var(--green);
+      box-shadow: 0 12px 40px rgba(47, 163, 107, 0.18);
+      transform: scale(1.04);
+    }
+    @media(max-width: 880px) { .price-card.popular { transform: none; } }
+    .badge-pop {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--green); color: #fff;
+      font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 6px 16px; border-radius: 999px;
+    }
+    .price-tier { font-size: 19px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .price-amount { font-size: 44px; font-weight: 850; color: var(--text); line-height: 1; margin-bottom: 4px; }
+    .price-period { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+    .price-features { list-style: none; display: grid; gap: 13px; margin-bottom: 32px; }
+    .price-features li {
+      font-size: 14.5px; color: var(--text); display: flex; align-items: center; gap: 10px;
+    }
+    .price-features li svg { width: 17px; height: 17px; fill: var(--green); flex-shrink: 0; }
+    .btn-plan {
+      display: block; width: 100%; text-align: center;
+      padding: 14px; border-radius: 12px;
+      font-size: 15px; font-weight: 700; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-plan-outline { background: var(--bg-subtle); color: var(--text); border: 1px solid var(--card-border); }
+    .btn-plan-outline:hover { background: #eef3ef; border-color: #ccd9cf; }
+    .btn-plan-primary { background: var(--green); color: #fff; box-shadow: 0 4px 16px rgba(47, 163, 107, 0.3); }
+    .btn-plan-primary:hover { background: var(--green-dark); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--card-border);
+      background: var(--bg-subtle);
+      padding: 44px 0; text-align: center; color: var(--text-muted); font-size: 14px;
+    }
+    .foot-links { display: flex; justify-content: center; gap: 28px; margin-bottom: 16px; }
+    .foot-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; }
+    .foot-links a:hover { color: var(--green-dark); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <img src="demo_assets/logo.png" alt="SnapRoom AI Logo">
+        SnapRoom<span>AI</span>
+      </a>
+      <div class="nav-links">
+        <a href="#how">How It Works</a>
+        <a href="#modes">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="https://apps.apple.com" target="_blank" class="btn-download-nav">
+          <img class="apple-icon-nav" src="demo_assets/apple_logo.webp" alt="Apple">
+          App Store
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-badge">⚡ AI Virtual Staging in 10 Seconds</div>
+      <h1>Transform Empty Rooms Into <span>Luxury Listings.</span></h1>
+      <p>Snap a photo on your phone. SnapRoom AI instantly stages vacant spaces with magazine-grade designer furniture and clears clutter. Built for realtors and Airbnb hosts.</p>
+      
+      <div class="hero-cta">
+        <a href="#pricing" class="btn-primary-app">
+          <img class="apple-icon-btn" src="demo_assets/apple_logo.webp" alt="Apple">
+          Get on iPhone
+        </a>
+      </div>
+      <div class="hero-subtext">No physical staging · No wait times · Free trial available</div>
+
+      <!-- INTERACTIVE ROOM SELECTOR TABS -->
+      <div class="room-tabs">
+        <button class="room-tab active" onclick="switchRoom(0)">🛋️ Living Room 1</button>
+        <button class="room-tab" onclick="switchRoom(1)">🛏️ Master Bedroom</button>
+        <button class="room-tab" onclick="switchRoom(2)">🛋️ Cozy Living Room</button>
+        <button class="room-tab" onclick="switchRoom(3)">🍽️ Dining Space</button>
+        <button class="room-tab" onclick="switchRoom(4)">🧹 AI Declutter Mode</button>
+      </div>
+
+      <!-- INTERACTIVE BEFORE/AFTER SLIDER (DYNAMICALLY UPDATES) -->
+      <div class="slider-wrap">
+        <div class="slider-card">
+          <div class="ba-slider" id="mainSlider" style="--pos: 50%;">
+            <img id="beforeImg" src="demo_assets/lookly_photos/room3_before_clean.jpg" alt="Before staging">
+            <img id="afterImg" class="after-img" src="demo_assets/lookly_photos/room3_after.jpg" alt="After SnapRoom AI staging">
+            <span id="tagBefore" class="tag tag-before">Before (Empty Room)</span>
+            <span id="tagAfter" class="tag tag-after">After (SnapRoom AI)</span>
+            <div class="divider"></div>
+            <div class="handle">
+              <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z M15.41 7.41L10.83 12l4.58 4.59L14 18l-6-6 6-6 1.41 1.41z"/></svg>
+            </div>
+          </div>
+        </div>
+        <p class="slider-hint">👆 <span id="currentRoomLabel">Living Room 1</span> — <b>Drag the slider</b> or tap the room buttons above to try different spaces!</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="container">
+      <div class="section-head">
+        <h2>How It Works</h2>
+        <p>Three simple taps from your smartphone to high-end listing photos.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Snap a Photo</h3>
+          <p>Take a quick photo of any vacant or cluttered room with your smartphone. No pro cameras needed.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Pick Your Mode</h3>
+          <p>Choose <b>Vacant Home</b> to furnish bare rooms, or <b>AI Declutter</b> to wipe away boxes, dishes, and mess.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Publish & Sell</h3>
+          <p>In 10 seconds, download MLS and Zillow-ready high-res photos that attract more buyers and faster offers.</p>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE APP PROCESSING DEMO -->
+      <div style="margin-top: 50px; background: #ffffff; border: 1.5px solid var(--card-border); border-radius: 28px; padding: 40px; box-shadow: var(--shadow-md); display: grid; grid-template-columns: 280px 1fr; gap: 48px; align-items: center;">
+        <div>
+          <!-- iPhone Bezel Frame -->
+          <div style="position: relative; border-radius: 36px; border: 8px solid #14211b; overflow: hidden; box-shadow: 0 16px 40px rgba(0,0,0,0.18); aspect-ratio: 1170/2532; max-width: 260px; margin: 0 auto; background: #000;">
+            <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100px; height: 18px; background: #14211b; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; z-index: 10;"></div>
+            <img src="demo_assets/screenshots/03_app_processing_screen.png" alt="SnapRoom AI In-App Processing" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          </div>
+          <p style="text-align: center; font-size: 12.5px; color: var(--text-muted); margin-top: 12px; font-weight: 600;">📱 Real iOS Processing Screen</p>
+        </div>
+
+        <div>
+          <span class="hero-badge" style="margin-bottom: 14px;">Interactive Demo</span>
+          <h3 style="font-size: 26px; font-weight: 850; margin-bottom: 10px; color: var(--text);">Try the 10-Second Staging Engine</h3>
+          <p style="color: var(--text-muted); font-size: 15.5px; line-height: 1.6; margin-bottom: 24px;">Experience exactly what happens inside the iOS app. Pick a vacant sample or test the engine live:</p>
+
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 13.5px; font-weight: 750; color: var(--text); margin-bottom: 8px;">1. Select Room Photo to Stage:</label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="room-tab active" id="demoSample1" onclick="selectDemoSample(0)" style="font-size: 13px; padding: 8px 16px;">🛋️ Vacant Living Room</button>
+              <button class="room-tab" id="demoSample2" onclick="selectDemoSample(1)" style="font-size: 13px; padding: 8px 16px;">🛏️ Bare Bedroom</button>
+              <button class="room-tab" id="demoSample3" onclick="selectDemoSample(3)" style="font-size: 13px; padding: 8px 16px;">🍽️ Dining Space</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; font-size: 13.5px; font-weight: 750; color: var(--text); margin-bottom: 8px;">2. AI Processing Mode:</label>
+            <div style="display: flex; gap: 10px;">
+              <span style="background: var(--green-tint); border: 1px solid var(--green); color: var(--green-dark); font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px;">✓ Vacant Home (Furnish)</span>
+              <span style="background: var(--bg-subtle); border: 1px solid var(--card-border); color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 999px;">AI Declutter Mode</span>
+            </div>
+          </div>
+
+          <button id="btnRunDemo" onclick="runStagingSimulation()" style="background: var(--green); color: #fff; border: 0; padding: 15px 32px; border-radius: 999px; font-size: 15.5px; font-weight: 750; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 6px 20px rgba(47, 163, 107, 0.35); transition: all 0.2s;">
+            ⚡ Run Staging Demo (Instant)
+          </button>
+
+          <!-- Simulated Progress Bar -->
+          <div id="demoProgressBox" style="display: none; margin-top: 20px;">
+            <div style="width: 100%; height: 8px; background: #e8eee9; border-radius: 999px; overflow: hidden;">
+              <div id="demoProgressBar" style="width: 0%; height: 100%; background: var(--green); transition: width 0.3s ease;"></div>
+            </div>
+            <div id="demoProgressText" style="font-size: 13.5px; color: var(--green-dark); font-weight: 700; margin-top: 8px;">Analyzing room geometry...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODES SHOWCASE -->
+  <section class="section" id="modes" style="background: var(--bg-subtle); border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border);">
+    <div class="container">
+      <div class="modes-split">
+        <div>
+          <div class="hero-badge">Two Powerful Modes</div>
+          <h2 style="font-size:32px;font-weight:850;margin-bottom:16px;letter-spacing:-0.02em">Built for Every Real Estate Listing</h2>
+          <p style="color:var(--text-muted);font-size:16px;margin-bottom:28px;line-height:1.6">Empty rooms look cold, and occupied rooms look messy. SnapRoom AI solves both instantly without hiring a staging crew.</p>
+
+          <div class="mode-item">
+            <div class="mode-icon">1</div>
+            <div>
+              <h4>Vacant Home Furnishing</h4>
+              <p>Fills empty spaces with curated, photorealistic luxury sofas, dining sets, rugs, and decor matching the room's architecture.</p>
+            </div>
+          </div>
+
+          <div class="mode-item">
+            <div class="mode-icon">2</div>
+            <div>
+              <h4>AI Declutter & Polish</h4>
+              <p>Automatically clears tenant belongings, clutter, boxes, and cables while enhancing natural light and color balance.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="slider-card">
+            <div class="ba-slider" id="secondSlider" style="--pos: 50%;">
+              <img src="demo_assets/lookly_photos/declutter_before_clean.jpg" alt="Cluttered room before">
+              <img class="after-img" src="demo_assets/lookly_photos/temizlenmiş.jpg" alt="Clean room after SnapRoom AI">
+              <span class="tag tag-before">Cluttered</span>
+              <span class="tag tag-after">AI Decluttered</span>
+              <div class="divider"></div>
+              <div class="handle">
+                <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z M15.41 7.41L10.83 12l4.58 4.59L14 18l-6-6 6-6 1.41 1.41z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="slider-hint">👆 <span>Drag slider</span> to view AI Declutter mode in action</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING (EXACTLY MATCHES APP TIERS) -->
+  <section class="section" id="pricing">
+    <div class="container">
+      <div class="section-head">
+        <h2>Simple, Transparent Plans</h2>
+        <p>No thousands spent on physical furniture movers. Cancel anytime with one tap.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Starter -->
+        <div class="price-card">
+          <div class="price-tier">Starter</div>
+          <div class="price-amount">$4.99</div>
+          <div class="price-period">per week</div>
+          <ul class="price-features">
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> <b>50 photos</b> per week</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Vacant Staging Mode</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> AI Declutter Mode</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Standard HD export</li>
+          </ul>
+          <a href="https://apps.apple.com" target="_blank" class="btn-plan btn-plan-outline">Choose Starter</a>
+        </div>
+
+        <!-- PRO (Popular) -->
+        <div class="price-card popular">
+          <div class="badge-pop">Most Popular</div>
+          <div class="price-tier">PRO</div>
+          <div class="price-amount" style="color:var(--green)">$9.99</div>
+          <div class="price-period">per week</div>
+          <ul class="price-features">
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> <b>150 photos</b> per week</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Ultra-Fast GPU queue</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Commercial MLS Rights</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Full 4K Resolution</li>
+          </ul>
+          <a href="https://apps.apple.com" target="_blank" class="btn-plan btn-plan-primary">Start PRO Trial</a>
+        </div>
+
+        <!-- Studio -->
+        <div class="price-card">
+          <div class="price-tier">Studio</div>
+          <div class="price-amount">$19.99</div>
+          <div class="price-period">per week</div>
+          <ul class="price-features">
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> <b>400 photos</b> per week</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Priority VIP queue</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Unlimited multi-angles</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Dedicated Agency Support</li>
+          </ul>
+          <a href="https://apps.apple.com" target="_blank" class="btn-plan btn-plan-outline">Choose Studio</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="foot-links">
+        <a href="#how">How It Works</a>
+        <a href="#modes">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="https://apps.apple.com" target="_blank">App Store</a>
+      </div>
+      <p>© 2026 SnapRoom AI. All rights reserved. Available for iOS.</p>
+    </div>
+  </footer>
+
+  <!-- DYNAMIC ROOM SWITCHING & SLIDER LOGIC -->
+  <script>
+    const rooms = [
+      {
+        name: "Living Room 1",
+        before: "demo_assets/lookly_photos/room3_before_clean.jpg",
+        after: "demo_assets/lookly_photos/room3_after.jpg",
+        tagB: "Before (Empty Room)",
+        tagA: "After (SnapRoom AI)"
+      },
+      {
+        name: "Master Bedroom",
+        before: "demo_assets/lookly_photos/room4_before_clean.jpg",
+        after: "demo_assets/lookly_photos/room4_after.jpg",
+        tagB: "Before (Empty Bedroom)",
+        tagA: "After (SnapRoom AI)"
+      },
+      {
+        name: "Cozy Living Room",
+        before: "demo_assets/lookly_photos/room5_before_clean.jpg",
+        after: "demo_assets/lookly_photos/room5_after.jpg",
+        tagB: "Before (Empty Living)",
+        tagA: "After (SnapRoom AI)"
+      },
+      {
+        name: "Dining Space",
+        before: "demo_assets/lookly_photos/room6_before_perfect.jpg",
+        after: "demo_assets/lookly_photos/room6_after_perfect.jpg",
+        tagB: "Before (Bare Space)",
+        tagA: "After (SnapRoom AI)"
+      },
+      {
+        name: "AI Declutter Mode",
+        before: "demo_assets/lookly_photos/declutter_before_clean.jpg",
+        after: "demo_assets/lookly_photos/temizlenmiş.jpg",
+        tagB: "Before (Cluttered)",
+        tagA: "After (AI Decluttered)"
+      }
+    ];
+
+    function switchRoom(idx) {
+      const room = rooms[idx];
+      const beforeImg = document.getElementById('beforeImg');
+      const afterImg = document.getElementById('afterImg');
+      const tagB = document.getElementById('tagBefore');
+      const tagA = document.getElementById('tagAfter');
+      const label = document.getElementById('currentRoomLabel');
+
+      beforeImg.src = room.before;
+      afterImg.src = room.after;
+      tagB.textContent = room.tagB;
+      tagA.textContent = room.tagA;
+      label.textContent = room.name;
+
+      const tabs = document.querySelectorAll('.room-tab');
+      tabs.forEach((tab, i) => {
+        if (i === idx) tab.classList.add('active');
+        else tab.classList.remove('active');
+      });
+    }
+
+    function setupSlider(sliderId) {
+      const slider = document.getElementById(sliderId);
+      if (!slider) return;
+      let isDragging = false;
+
+      function update(clientX) {
+        const rect = slider.getBoundingClientRect();
+        let x = clientX - rect.left;
+        x = Math.max(0, Math.min(x, rect.width));
+        const pct = (x / rect.width) * 100;
+        slider.style.setProperty('--pos', pct + '%');
+      }
+
+      slider.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        slider.setPointerCapture(e.pointerId);
+        update(e.clientX);
+      });
+      slider.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        update(e.clientX);
+      });
+      slider.addEventListener('pointerup', (e) => {
+        isDragging = false;
+        slider.releasePointerCapture(e.pointerId);
+      });
+      slider.addEventListener('pointercancel', () => { isDragging = false; });
+    }
+
+    setupSlider('mainSlider');
+    setupSlider('secondSlider');
+
+    let currentDemoIdx = 0;
+    function selectDemoSample(idx) {
+      currentDemoIdx = idx;
+      switchRoom(idx);
+      ['demoSample1', 'demoSample2', 'demoSample3'].forEach((id, i) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        const mappedIdx = (i === 0 ? 0 : (i === 1 ? 1 : 3));
+        if (mappedIdx === idx) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+    }
+
+    function runStagingSimulation() {
+      const box = document.getElementById('demoProgressBox');
+      const bar = document.getElementById('demoProgressBar');
+      const text = document.getElementById('demoProgressText');
+      const btn = document.getElementById('btnRunDemo');
+
+      box.style.display = 'block';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+
+      // 0%
+      bar.style.width = '15%';
+      text.textContent = '1/3 Analyzing room geometry & 3D lighting...';
+
+      setTimeout(() => {
+        bar.style.width = '55%';
+        text.textContent = '2/3 Generating photoreal designer furniture...';
+      }, 700);
+
+      setTimeout(() => {
+        bar.style.width = '88%';
+        text.textContent = '3/3 Rendering high-res shadows & textures...';
+      }, 1400);
+
+      setTimeout(() => {
+        bar.style.width = '100%';
+        text.textContent = '✨ Complete! Check the interactive slider above!';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+
+        // Scroll to main slider and animate reveal
+        document.getElementById('mainSlider').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Animate slider handle from 100% to 50%
+        let p = 100;
+        const mainSl = document.getElementById('mainSlider');
+        const interval = setInterval(() => {
+          p -= 2;
+          mainSl.style.setProperty('--pos', p + '%');
+          if (p <= 50) clearInterval(interval);
+        }, 16);
+      }, 2100);
+    }
+  </script>
+</body>
+</html>
