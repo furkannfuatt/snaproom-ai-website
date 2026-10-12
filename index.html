@@ -269,6 +269,110 @@
     .btn-plan-primary { background: var(--green); color: #fff; box-shadow: 0 4px 16px rgba(47, 163, 107, 0.3); }
     .btn-plan-primary:hover { background: var(--green-dark); }
 
+    /* SIMULATOR CARD */
+    .simulator-card {
+      margin-top: 50px;
+      background: #ffffff;
+      border: 1.5px solid var(--card-border);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: var(--shadow-md);
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    @media (max-width: 860px) {
+      .simulator-card {
+        grid-template-columns: 1fr;
+        padding: 24px;
+        gap: 32px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links a:not(.btn-download-nav) {
+        display: none;
+      }
+      .nav-links {
+        gap: 8px;
+      }
+      .brand {
+        font-size: 19px;
+      }
+      .brand img {
+        width: 32px;
+        height: 32px;
+      }
+      .btn-download-nav {
+        padding: 8px 16px;
+        font-size: 13.5px;
+      }
+      .hero {
+        padding: 44px 0 36px;
+      }
+      .hero h1 {
+        font-size: clamp(28px, 6.8vw, 42px);
+        line-height: 1.2;
+      }
+      .hero p {
+        font-size: 16px;
+        margin-bottom: 24px;
+      }
+      .btn-primary-app {
+        padding: 14px 28px;
+        font-size: 15.5px;
+      }
+      .room-tabs {
+        margin-top: 28px;
+        gap: 8px;
+      }
+      .room-tab {
+        font-size: 12.5px;
+        padding: 7px 14px;
+      }
+      .slider-card {
+        padding: 8px;
+        border-radius: 18px;
+      }
+      .ba-slider {
+        aspect-ratio: 4 / 3;
+        border-radius: 14px;
+      }
+      .ba-slider .handle {
+        width: 44px;
+        height: 44px;
+      }
+      .tag {
+        font-size: 10.5px;
+        padding: 5px 11px;
+      }
+      .tag-before { left: 10px; top: 10px; }
+      .tag-after { right: 10px; top: 10px; }
+      .slider-hint {
+        font-size: 13px;
+      }
+      .section {
+        padding: 60px 0;
+      }
+      .section-head h2 {
+        font-size: 28px;
+      }
+      .section-head p {
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 16px;
+      }
+      .hero h1 {
+        font-size: 27px;
+      }
+    }
+
     /* FOOTER */
     footer {
       border-top: 1px solid var(--card-border);
@@ -371,7 +475,7 @@
       </div>
 
       <!-- INTERACTIVE APP PROCESSING DEMO -->
-      <div style="margin-top: 50px; background: #ffffff; border: 1.5px solid var(--card-border); border-radius: 28px; padding: 40px; box-shadow: var(--shadow-md); display: grid; grid-template-columns: 280px 1fr; gap: 48px; align-items: center;">
+      <div class="simulator-card">
         <div>
           <!-- iPhone Bezel Frame -->
           <div style="position: relative; border-radius: 36px; border: 8px solid #14211b; overflow: hidden; box-shadow: 0 16px 40px rgba(0,0,0,0.18); aspect-ratio: 1170/2532; max-width: 260px; margin: 0 auto; background: #000;">
@@ -586,7 +690,7 @@
       tagA.textContent = room.tagA;
       label.textContent = room.name;
 
-      const tabs = document.querySelectorAll('.room-tab');
+      const tabs = document.querySelectorAll('.room-tabs .room-tab');
       tabs.forEach((tab, i) => {
         if (i === idx) tab.classList.add('active');
         else tab.classList.remove('active');
@@ -608,7 +712,7 @@
 
       slider.addEventListener('pointerdown', (e) => {
         isDragging = true;
-        slider.setPointerCapture(e.pointerId);
+        try { slider.setPointerCapture(e.pointerId); } catch (_) {}
         update(e.clientX);
       });
       slider.addEventListener('pointermove', (e) => {
@@ -617,7 +721,11 @@
       });
       slider.addEventListener('pointerup', (e) => {
         isDragging = false;
-        slider.releasePointerCapture(e.pointerId);
+        try {
+          if (slider.hasPointerCapture && slider.hasPointerCapture(e.pointerId)) {
+            slider.releasePointerCapture(e.pointerId);
+          }
+        } catch (_) {}
       });
       slider.addEventListener('pointercancel', () => { isDragging = false; });
     }
@@ -674,6 +782,7 @@
         // Animate slider handle from 100% to 50%
         let p = 100;
         const mainSl = document.getElementById('mainSlider');
+        mainSl.style.setProperty('--pos', '100%');
         const interval = setInterval(() => {
           p -= 2;
           mainSl.style.setProperty('--pos', p + '%');
